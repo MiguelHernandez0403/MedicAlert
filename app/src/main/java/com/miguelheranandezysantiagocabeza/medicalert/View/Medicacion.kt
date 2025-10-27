@@ -1,6 +1,7 @@
 package com.miguelheranandezysantiagocabeza.medicalert.View
 
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,16 +19,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+import com.miguelheranandezysantiagocabeza.medicalert.R
 
-
-@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicacionesScreen() {
+fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClickAñadir: () -> Unit) {
     val medicaciones = remember {
         mutableStateListOf<Medicacion>(
-            Medicacion("Aspirina", "8:00 AM", "1 TABLETA"),
-            Medicacion("Loratadina", "7:00 AM", "1 TABLETA")
+            Medicacion("Aspirina", "8:00 AM", "1 TABLETA", 6, imagen = R.drawable.acetaminofen),
+            Medicacion("Loratadina", "7:00 AM", "1 TABLETA", 12, null)
         )
     }
 
@@ -102,7 +102,8 @@ fun MedicacionesScreen() {
             medicaciones.forEach { medicacion ->
                 MedicacionCard(
                     medicacion = medicacion,
-                    onEdit = { /* Editar medicación */ }
+                    onEdit = {  },
+                    onDetalles = {OnClickDetalles(medicacion)}
                 )
             }
         }
@@ -112,10 +113,12 @@ fun MedicacionesScreen() {
 @Composable
 fun MedicacionCard(
     medicacion: Medicacion,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onDetalles: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .clickable( onClick = onDetalles ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFE8F4F8)

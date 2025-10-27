@@ -17,14 +17,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
 import com.miguelheranandezysantiagocabeza.medicalert.R
 
-@Preview
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetallesMedicacionScreen(
-
+    medicacion : Medicacion,
+    OnClickVolver: () -> Unit = {}
 ) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -44,7 +47,7 @@ fun DetallesMedicacionScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = {} ) {
+                    IconButton(onClick = OnClickVolver ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Volver",
@@ -68,8 +71,8 @@ fun DetallesMedicacionScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Image(
-                painter = painterResource(R.drawable.acetaminofen),
-                contentDescription = "Logo corporativo",
+                painter = painterResource(medicacion.imagen ?: R.drawable.camara),
+                contentDescription = "Imagen del medicamento",
                 modifier = Modifier.size(100.dp)
             )
 
@@ -77,7 +80,7 @@ fun DetallesMedicacionScreen(
 
             // Nombre del medicamento
             Text(
-                text = "Acetaminofen",
+                text = medicacion.nombre,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF2C2C2C)
@@ -87,7 +90,7 @@ fun DetallesMedicacionScreen(
 
             // Hora y frecuencia
             Text(
-                text = "8:00 a.m · 24 Horas",
+                text = "${medicacion.hora} · ${medicacion.frecuencia}",
                 fontSize = 14.sp,
                 color = Color(0xFF666666)
             )
@@ -125,12 +128,12 @@ fun DetallesMedicacionScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Hoy",
+                            text = medicacion.dosis,
                             fontSize = 16.sp,
                             color = Color(0xFF2C2C2C)
                         )
                         Text(
-                            text = "24 Horas",
+                            text = "${medicacion.frecuencia}  Horas",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF2C2C2C)
@@ -143,7 +146,7 @@ fun DetallesMedicacionScreen(
 
             // Botón Volver
             Button(
-                onClick = {  },
+                onClick = OnClickVolver,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)

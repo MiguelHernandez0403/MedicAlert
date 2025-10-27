@@ -60,4 +60,10 @@ dependencies {
     //Navigation
 
     implementation(libs.androidx.navigation.compose)
+
+
+    //Gson
+
+    implementation("com.google.code.gson:gson:2.10.1")
+
 }

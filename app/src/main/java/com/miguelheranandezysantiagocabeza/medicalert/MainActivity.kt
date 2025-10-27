@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.miguelheranandezysantiagocabeza.medicalert.View.NavigationApp
+import com.miguelheranandezysantiagocabeza.medicalert.Navigation.NavigationApp
 import com.miguelheranandezysantiagocabeza.medicalert.ui.theme.MedicAlertTheme
 
 class MainActivity : ComponentActivity() {
