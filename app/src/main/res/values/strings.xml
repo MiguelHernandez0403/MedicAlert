@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">MedicAlert</string>
+    <string name="welcome_title">Bienvenido a MedicAlert</string>
+    <string name="cd_app_logo">Logo de la aplicación MedicAlert</string>
+    <string name="welcome_cta_citas">Ver Mis Citas</string>
+    <string name="welcome_cta_meds">Ver Mis Medicaciones</string>
+
+
 </resources>
