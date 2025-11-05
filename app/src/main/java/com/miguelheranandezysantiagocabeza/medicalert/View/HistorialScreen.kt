@@ -1,4 +1,4 @@
-package com.miguelheranandezysantiagocabeza.medicalert
+package com.miguelheranandezysantiagocabeza.medicalert.View
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

@@ -15,10 +15,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.google.gson.Gson
+import com.miguelheranandezysantiagocabeza.medicalert.View.AddEditMediScreen
+import com.miguelheranandezysantiagocabeza.medicalert.View.HistoryScreen
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
 import com.miguelheranandezysantiagocabeza.medicalert.View.ChargeScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.DetallesMedicacionScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.MedicacionesScreen
+import com.miguelheranandezysantiagocabeza.medicalert.View.WelcomeScreen
 import kotlinx.coroutines.delay
 
 
@@ -34,10 +37,17 @@ fun NavigationApp() {
         composable (route = "Charge") {
             ChargeScreenWithNavigation(
                 onLoadingComplete = {
-                    navController.navigate("Medicacion") {
+                    navController.navigate("Welcome") {
                         popUpTo("Charge") { inclusive = true }
                     }
                 }
+            )
+        }
+
+        composable(route = "Welcome"){
+            WelcomeScreen(
+                onCitas = { navController.navigate("Citas") },
+                onMedicaciones = { navController.navigate("Medicacion") }
             )
         }
 
@@ -48,7 +58,25 @@ fun NavigationApp() {
                     val medicacionJson = Uri.encode(Gson().toJson(medicacion))
                     navController.navigate("Detalle/$medicacionJson")
                 },
-                OnClickAñadir = {}
+                OnClickEditar = { navController.navigate("AddEditMedi") },
+                OnclickVolver = { navController.popBackStack() },
+                OnclickHistorial = {navController.navigate("Historial")}
+            )
+        }
+
+        composable(route = "AddEditMedi") {
+            AddEditMediScreen (
+                onBack = { navController.popBackStack() },
+                onSave = { nombre, dosis, regularidad, hora, foto ->
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(route = "Historial"){
+            HistoryScreen(
+                items = emptyList(),
+                onBack = { navController.popBackStack() }
             )
         }
 

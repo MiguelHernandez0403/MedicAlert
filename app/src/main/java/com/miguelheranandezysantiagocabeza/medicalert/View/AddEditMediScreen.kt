@@ -1,4 +1,4 @@
-package com.miguelheranandezysantiagocabeza.medicalert
+package com.miguelheranandezysantiagocabeza.medicalert.View
 
 import android.app.TimePickerDialog
 import android.net.Uri

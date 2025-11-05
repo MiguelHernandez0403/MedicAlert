@@ -3,7 +3,6 @@ package com.miguelheranandezysantiagocabeza.medicalert.View
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -15,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
@@ -23,7 +21,7 @@ import com.miguelheranandezysantiagocabeza.medicalert.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClickAñadir: () -> Unit) {
+fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClickEditar: () -> Unit, OnclickVolver: () -> Unit, OnclickHistorial: () -> Unit) {
     val medicaciones = remember {
         mutableStateListOf<Medicacion>(
             Medicacion("Aspirina", "8:00 AM", "1 TABLETA", 6, imagen = R.drawable.acetaminofen),
@@ -43,7 +41,7 @@ fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClic
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Navegar atrás */ }) {
+                    IconButton(onClick = { OnclickVolver() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Volver",
@@ -52,7 +50,7 @@ fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClic
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Mostrar lista */ }) {
+                    IconButton(onClick = { OnclickHistorial() }) {
                         Icon(
                             imageVector = Icons.Outlined.List,
                             contentDescription = "Lista",
@@ -73,7 +71,7 @@ fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClic
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-                    onClick = { /* Añadir nueva medicación */ },
+                    onClick = { OnClickEditar() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -102,7 +100,7 @@ fun MedicacionesScreen(OnClickDetalles: (medicacion: Medicacion) -> Unit, OnClic
             medicaciones.forEach { medicacion ->
                 MedicacionCard(
                     medicacion = medicacion,
-                    onEdit = {  },
+                    onEdit = { OnClickEditar() },
                     onDetalles = {OnClickDetalles(medicacion)}
                 )
             }
