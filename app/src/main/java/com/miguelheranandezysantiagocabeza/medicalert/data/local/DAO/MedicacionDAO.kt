@@ -3,25 +3,33 @@ package com.miguelheranandezysantiagocabeza.medicalert.data.local.DAO
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+import com.miguelheranandezysantiagocabeza.medicalert.data.local.Entities.MedicacionEntity
 
 @Dao
 interface MedicacionDao {
 
-    @Query("SELECT * FROM Medicacion")
-    fun getAll(): List<Medicacion>
+    // READ - Muestra los datos de la tabla
+    @Query("SELECT * FROM medicacion ORDER BY nombre ASC")
+    suspend fun getAll(): List<MedicacionEntity>
 
-    @Insert
-    fun insertAll(vararg medicaciones: Medicacion)
+    // READ - Muestra un solo dato especifico de la tabla usando el ID
+    @Query("SELECT * FROM medicacion WHERE id = :id")
+    suspend fun getById(id: Int): MedicacionEntity?
 
-    @Insert
-    fun insert(medicacion: Medicacion)
+    // CREATE - Inserta los datos en la tabla
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(medicacion: MedicacionEntity)
 
-    @Delete
-    fun delete(medicacion: Medicacion)
-
+    // UPDATE - Actualiza datos especificos en la tabla usando el objeto completo
     @Update
-    fun update(medicacion: Medicacion)
+    suspend fun update(medicacion: MedicacionEntity)
+
+    // DELETE - Borra datos especificos de la tabla usando el ID
+    @Query("DELETE FROM medicacion WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
 }
