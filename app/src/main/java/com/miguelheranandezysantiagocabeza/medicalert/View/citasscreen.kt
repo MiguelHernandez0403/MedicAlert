@@ -13,34 +13,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
-import com.miguelheranandezysantiagocabeza.medicalert.R
+
+// Modelo de datos para una cita médica
+data class Cita(
+    val titulo: String,    // Título de la cita (ej: "Odontólogo")
+    val fecha: String,     // Fecha y hora de la cita
+    val lugar: String      // Lugar donde se realizará la cita
+)
 
 /**
- * Pantalla principal de Medicaciones
- * Muestra una lista de medicaciones con opciones para ver detalles, editar y acceder al historial
+ * Pantalla principal de Citas Médicas
+ * Muestra una lista de citas con opciones para ver detalles, editar y acceder al historial
  *
- * @param OnClickDetalles Callback que se ejecuta al hacer clic en una tarjeta de medicación
- * @param OnClickEditar Callback que se ejecuta al hacer clic en editar o añadir medicación
+ * @param OnClickDetalles Callback que se ejecuta al hacer clic en una tarjeta de cita
+ * @param OnClickAgregar Callback que se ejecuta al hacer clic en añadir o editar cita
  * @param OnclickVolver Callback que se ejecuta al hacer clic en el botón de volver
  * @param OnclickHistorial Callback que se ejecuta al hacer clic en el botón de historial
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicacionesScreen(
-    OnClickDetalles: (medicacion: Medicacion) -> Unit,
-    OnClickEditar: () -> Unit,
+fun CitasScreen(
+    OnClickDetalles: (cita: Cita) -> Unit,
+    OnClickAgregar: () -> Unit,
     OnclickVolver: () -> Unit,
     OnclickHistorial: () -> Unit
 ) {
-    // Lista de medicaciones con datos de ejemplo
+    // Lista de citas con datos de ejemplo
     // remember y mutableStateListOf mantienen el estado de la lista entre recomposiciones
-    val medicaciones = remember {
-        mutableStateListOf<Medicacion>(
-            Medicacion("Aspirina", "8:00 AM", "1 TABLETA", 6, imagen = R.drawable.acetaminofen),
-            Medicacion("Loratadina", "7:00 AM", "1 TABLETA", 12, null)
+    val citas = remember {
+        mutableStateListOf(
+            Cita("Odontólogo", "12/11/2025 - 3:00 PM", "Clínica Santa María"),
+            Cita("Control general", "18/11/2025 - 10:00 AM", "Hospital Universitario")
         )
     }
 
@@ -49,11 +55,11 @@ fun MedicacionesScreen(
         // Barra superior de la aplicación
         topBar = {
             TopAppBar(
-                // Título de la pantalla
                 title = {
+                    // Título de la pantalla
                     Text(
-                        text = "Medicaciones",
-                        fontSize = 18.sp, // Tamaño de fuente moderado
+                        text = "Citas",
+                        fontSize = 18.sp, // Tamaño reducido
                         fontWeight = FontWeight.SemiBold, // Peso semi-negrita
                         color = Color.White // Color blanco para contraste con fondo azul
                     )
@@ -73,7 +79,7 @@ fun MedicacionesScreen(
                     IconButton(onClick = { OnclickHistorial() }) {
                         Icon(
                             imageVector = Icons.Outlined.List,
-                            contentDescription = "Lista",
+                            contentDescription = "Historial",
                             tint = Color.White // Color blanco para el icono
                         )
                     }
@@ -84,7 +90,7 @@ fun MedicacionesScreen(
                 )
             )
         },
-        // Barra inferior con botón de añadir medicación
+        // Barra inferior con botón de añadir cita
         bottomBar = {
             // Box para centrar el botón
             Box(
@@ -93,20 +99,20 @@ fun MedicacionesScreen(
                     .padding(16.dp), // Padding alrededor del contenedor
                 contentAlignment = Alignment.Center // Centra el contenido
             ) {
-                // Botón para añadir nueva medicación
+                // Botón para añadir nueva cita
                 Button(
-                    onClick = { OnClickEditar() },
+                    onClick = { OnClickAgregar() },
                     modifier = Modifier
-                        .wrapContentWidth() // Ajusta el ancho al contenido (no ocupa todo el ancho)
+                        .wrapContentWidth() // Ajusta el ancho al contenido
                         .height(40.dp) // Altura del botón
                         .padding(horizontal = 8.dp), // Padding horizontal interno
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF87CEEB) // Azul claro, igual que la barra superior
+                        containerColor = Color(0xFF87CEEB) // Azul claro
                     ),
                     shape = RoundedCornerShape(6.dp) // Bordes redondeados suaves
                 ) {
                     Text(
-                        text = "Añadir Medicación",
+                        text = "Añadir Cita",
                         fontSize = 14.sp, // Tamaño de fuente pequeño
                         fontWeight = FontWeight.Normal, // Peso normal
                         color = Color.White // Texto blanco
@@ -115,20 +121,20 @@ fun MedicacionesScreen(
             }
         }
     ) { paddingValues ->
-        // Contenido principal: lista de medicaciones
+        // Contenido principal: lista de citas
         Column(
             modifier = Modifier
                 .fillMaxSize() // Ocupa todo el espacio disponible
-                .padding(paddingValues) // Respeta el padding del Scaffold (evita solapamiento con barras)
+                .padding(paddingValues) // Respeta el padding del Scaffold
                 .padding(horizontal = 16.dp, vertical = 8.dp), // Padding adicional interno
             verticalArrangement = Arrangement.spacedBy(8.dp) // Espacio de 8dp entre cada elemento
         ) {
-            // Itera sobre cada medicación y crea una tarjeta
-            medicaciones.forEach { medicacion ->
-                MedicacionCard(
-                    medicacion = medicacion,
-                    onEdit = { OnClickEditar() }, // Callback para editar
-                    onDetalles = { OnClickDetalles(medicacion) } // Callback para ver detalles
+            // Itera sobre cada cita y crea una tarjeta
+            citas.forEach { cita ->
+                CitaCard(
+                    cita = cita,
+                    onDetalles = { OnClickDetalles(cita) }, // Callback para ver detalles
+                    onEditar = { OnClickAgregar() } // Callback para editar
                 )
             }
         }
@@ -136,17 +142,17 @@ fun MedicacionesScreen(
 }
 
 /**
- * Tarjeta individual que muestra la información de una medicación
+ * Tarjeta individual que muestra la información de una cita médica
  *
- * @param medicacion Objeto con los datos de la medicación (nombre, hora, dosis)
- * @param onEdit Callback que se ejecuta al hacer clic en el icono de editar
+ * @param cita Objeto con los datos de la cita (título, fecha, lugar)
  * @param onDetalles Callback que se ejecuta al hacer clic en la tarjeta completa
+ * @param onEditar Callback que se ejecuta al hacer clic en el icono de editar
  */
 @Composable
-fun MedicacionCard(
-    medicacion: Medicacion,
-    onEdit: () -> Unit,
-    onDetalles: () -> Unit
+fun CitaCard(
+    cita: Cita,
+    onDetalles: () -> Unit,
+    onEditar: () -> Unit
 ) {
     // Card: contenedor con elevación y bordes redondeados
     Card(
@@ -167,38 +173,38 @@ fun MedicacionCard(
             horizontalArrangement = Arrangement.SpaceBetween, // Separa contenido a los extremos
             verticalAlignment = Alignment.CenterVertically // Alinea verticalmente al centro
         ) {
-            // Column: contiene la información de la medicación (nombre, hora, dosis)
+            // Column: contiene la información de la cita (título, fecha, lugar)
             Column(
-                modifier = Modifier.weight(1f) // Ocupa el espacio disponible, empuja el botón a la derecha
+                modifier = Modifier.weight(1f) // Ocupa el espacio disponible
             ) {
-                // Nombre de la medicación
+                // Título de la cita en mayúsculas y negrita
                 Text(
-                    text = medicacion.nombre,
-                    fontSize = 16.sp, // Tamaño moderado
+                    text = cita.titulo.uppercase(), // Convierte a mayúsculas
+                    fontSize = 14.sp, // Tamaño pequeño
                     fontWeight = FontWeight.Bold, // Negrita para destacar
                     color = Color(0xFF2C2C2C) // Gris oscuro
                 )
-                Spacer(modifier = Modifier.height(2.dp)) // Espacio pequeño
+                Spacer(modifier = Modifier.height(4.dp)) // Espacio pequeño
 
-                // Hora de toma
+                // Fecha y hora de la cita
                 Text(
-                    text = medicacion.hora,
-                    fontSize = 13.sp, // Tamaño pequeño
+                    text = cita.fecha,
+                    fontSize = 12.sp, // Tamaño pequeño
                     color = Color(0xFF666666) // Gris medio
                 )
-                Spacer(modifier = Modifier.height(1.dp)) // Espacio mínimo
+                Spacer(modifier = Modifier.height(2.dp)) // Espacio mínimo
 
-                // Dosis
+                // Lugar de la cita
                 Text(
-                    text = medicacion.dosis,
-                    fontSize = 13.sp, // Tamaño pequeño
+                    text = cita.lugar,
+                    fontSize = 12.sp, // Tamaño pequeño
                     color = Color(0xFF666666) // Gris medio
                 )
             }
 
             // Botón de edición (icono)
             IconButton(
-                onClick = onEdit,
+                onClick = onEditar,
                 modifier = Modifier.size(36.dp) // Tamaño del área clickeable
             ) {
                 Icon(
@@ -210,4 +216,31 @@ fun MedicacionCard(
             }
         }
     }
+}
+
+// Preview de la pantalla completa
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewCitasScreen() {
+    CitasScreen(
+        OnClickDetalles = {},
+        OnClickAgregar = {},
+        OnclickVolver = {},
+        OnclickHistorial = {}
+    )
+}
+
+// Preview de una tarjeta individual
+@Preview(showBackground = true)
+@Composable
+fun PreviewCitaCard() {
+    CitaCard(
+        cita = Cita(
+            titulo = "Odontólogo",
+            fecha = "12/11/2025 - 3:00 PM",
+            lugar = "Clínica Santa María"
+        ),
+        onDetalles = {},
+        onEditar = {}
+    )
 }

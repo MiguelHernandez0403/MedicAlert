@@ -1,12 +1,15 @@
 package com.miguelheranandezysantiagocabeza.medicalert.View
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -40,77 +43,80 @@ fun WelcomeScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { inner ->
-        Column(
+        Box(
             modifier = modifier
                 .padding(inner)
                 .fillMaxSize()
+                .verticalScroll(scroll),
+            contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(R.drawable.medicalertlogo),
-                contentDescription = stringResource(R.string.cd_app_logo),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop
-            )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .verticalScroll(scroll)
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                // Logo
+                Image(
+                    painter = painterResource(R.drawable.medicalertlogo),
+                    contentDescription = stringResource(R.string.cd_app_logo),
+                    modifier = Modifier
+                        .size(400.dp),
+                    contentScale = ContentScale.Fit
+                )
+
                 Spacer(Modifier.height(24.dp))
 
+                // Título
                 Text(
                     text = stringResource(R.string.welcome_title),
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.primary, // Corregido
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(Modifier.height(32.dp))
 
+                // Botón Citas
                 Button(
                     onClick = onCitas,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer, // Corregido
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer // Corregido
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(48.dp)
                 ) {
                     Text(stringResource(R.string.welcome_cta_citas))
                 }
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
 
+                // Botón Medicaciones
                 Button(
                     onClick = onMedicaciones,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer, // Corregido
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer // Corregido
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .height(48.dp)
                 ) {
                     Text(stringResource(R.string.welcome_cta_meds))
                 }
 
-                Spacer(Modifier.height(100
-                    .dp))
+                Spacer(Modifier.height(48.dp))
 
+                // Footer
                 Text(
                     text = "©$year Papitas Fritas Co. All rights reserved.\nInnovación Crocante.",
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.outline // Corregido
+                    color = MaterialTheme.colorScheme.outline
                 )
-
-                Spacer(Modifier.height(24.dp))
             }
         }
     }
