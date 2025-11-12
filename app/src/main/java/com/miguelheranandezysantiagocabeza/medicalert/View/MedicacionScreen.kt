@@ -18,25 +18,14 @@ import androidx.compose.ui.unit.sp
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
 import com.miguelheranandezysantiagocabeza.medicalert.R
 
-/**
- * Pantalla principal de Medicaciones
- * Muestra una lista de medicaciones con opciones para ver detalles, editar y acceder al historial
- *
- * @param OnClickDetalles Callback que se ejecuta al hacer clic en una tarjeta de medicación
- * @param OnClickEditar Callback que se ejecuta al hacer clic en editar o añadir medicación
- * @param OnclickVolver Callback que se ejecuta al hacer clic en el botón de volver
- * @param OnclickHistorial Callback que se ejecuta al hacer clic en el botón de historial
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicacionesScreen(
-    OnClickDetalles: (medicacion: Medicacion) -> Unit,
+    OnClickDetalles: () -> Unit,
     OnClickEditar: () -> Unit,
     OnclickVolver: () -> Unit,
     OnclickHistorial: () -> Unit
 ) {
-    // Lista de medicaciones con datos de ejemplo
-    // remember y mutableStateListOf mantienen el estado de la lista entre recomposiciones
     val medicaciones = remember {
         mutableStateListOf<Medicacion>(
             Medicacion("Aspirina", "8:00 AM", "1 TABLETA", 6, imagen = R.drawable.acetaminofen),
@@ -44,168 +33,141 @@ fun MedicacionesScreen(
         )
     }
 
-    // Scaffold: estructura básica de la pantalla con topBar y bottomBar
     Scaffold(
-        // Barra superior de la aplicación
         topBar = {
             TopAppBar(
-                // Título de la pantalla
                 title = {
                     Text(
                         text = "Medicaciones",
-                        fontSize = 18.sp, // Tamaño de fuente moderado
-                        fontWeight = FontWeight.SemiBold, // Peso semi-negrita
-                        color = Color.White // Color blanco para contraste con fondo azul
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White
                     )
                 },
-                // Icono de navegación (botón volver)
                 navigationIcon = {
                     IconButton(onClick = { OnclickVolver() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Volver",
-                            tint = Color.White // Color blanco para el icono
+                            tint = Color.White
                         )
                     }
                 },
-                // Acciones en la barra (botón historial)
                 actions = {
                     IconButton(onClick = { OnclickHistorial() }) {
                         Icon(
                             imageVector = Icons.Outlined.List,
                             contentDescription = "Lista",
-                            tint = Color.White // Color blanco para el icono
+                            tint = Color.White
                         )
                     }
                 },
-                // Colores de la barra superior
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF87CEEB) // Azul claro (Sky Blue)
+                    containerColor = Color(0xFF87CEEB)
                 )
             )
         },
-        // Barra inferior con botón de añadir medicación
         bottomBar = {
-            // Box para centrar el botón
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Ocupa todo el ancho
-                    .padding(16.dp), // Padding alrededor del contenedor
-                contentAlignment = Alignment.Center // Centra el contenido
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                // Botón para añadir nueva medicación
                 Button(
                     onClick = { OnClickEditar() },
                     modifier = Modifier
-                        .wrapContentWidth() // Ajusta el ancho al contenido (no ocupa todo el ancho)
-                        .height(40.dp) // Altura del botón
-                        .padding(horizontal = 8.dp), // Padding horizontal interno
+                        .wrapContentWidth()
+                        .height(40.dp)
+                        .padding(horizontal = 8.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF87CEEB) // Azul claro, igual que la barra superior
+                        containerColor = Color(0xFF87CEEB)
                     ),
-                    shape = RoundedCornerShape(6.dp) // Bordes redondeados suaves
+                    shape = RoundedCornerShape(6.dp)
                 ) {
                     Text(
                         text = "Añadir Medicación",
-                        fontSize = 14.sp, // Tamaño de fuente pequeño
-                        fontWeight = FontWeight.Normal, // Peso normal
-                        color = Color.White // Texto blanco
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = Color.White
                     )
                 }
             }
         }
     ) { paddingValues ->
-        // Contenido principal: lista de medicaciones
         Column(
             modifier = Modifier
-                .fillMaxSize() // Ocupa todo el espacio disponible
-                .padding(paddingValues) // Respeta el padding del Scaffold (evita solapamiento con barras)
-                .padding(horizontal = 16.dp, vertical = 8.dp), // Padding adicional interno
-            verticalArrangement = Arrangement.spacedBy(8.dp) // Espacio de 8dp entre cada elemento
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Itera sobre cada medicación y crea una tarjeta
             medicaciones.forEach { medicacion ->
                 MedicacionCard(
                     medicacion = medicacion,
-                    onEdit = { OnClickEditar() }, // Callback para editar
-                    onDetalles = { OnClickDetalles(medicacion) } // Callback para ver detalles
+                    onEdit = { OnClickEditar() },
+                    onDetalles = { OnClickDetalles() }
                 )
             }
         }
     }
 }
 
-/**
- * Tarjeta individual que muestra la información de una medicación
- *
- * @param medicacion Objeto con los datos de la medicación (nombre, hora, dosis)
- * @param onEdit Callback que se ejecuta al hacer clic en el icono de editar
- * @param onDetalles Callback que se ejecuta al hacer clic en la tarjeta completa
- */
 @Composable
 fun MedicacionCard(
     medicacion: Medicacion,
     onEdit: () -> Unit,
     onDetalles: () -> Unit
 ) {
-    // Card: contenedor con elevación y bordes redondeados
     Card(
         modifier = Modifier
-            .fillMaxWidth() // Ocupa todo el ancho disponible
-            .clickable(onClick = onDetalles), // Hace la tarjeta clickeable
-        shape = RoundedCornerShape(8.dp), // Bordes redondeados de 8dp
+            .fillMaxWidth()
+            .clickable(onClick = onDetalles),
+        shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White // Fondo blanco limpio
+            containerColor = Color.White
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp) // Sombra sutil
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        // Row: organiza el contenido horizontalmente
         Row(
             modifier = Modifier
-                .fillMaxWidth() // Ocupa todo el ancho
-                .padding(12.dp), // Padding interno compacto
-            horizontalArrangement = Arrangement.SpaceBetween, // Separa contenido a los extremos
-            verticalAlignment = Alignment.CenterVertically // Alinea verticalmente al centro
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Column: contiene la información de la medicación (nombre, hora, dosis)
             Column(
-                modifier = Modifier.weight(1f) // Ocupa el espacio disponible, empuja el botón a la derecha
+                modifier = Modifier.weight(1f)
             ) {
-                // Nombre de la medicación
                 Text(
                     text = medicacion.nombre,
-                    fontSize = 16.sp, // Tamaño moderado
-                    fontWeight = FontWeight.Bold, // Negrita para destacar
-                    color = Color(0xFF2C2C2C) // Gris oscuro
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2C2C2C)
                 )
-                Spacer(modifier = Modifier.height(2.dp)) // Espacio pequeño
-
-                // Hora de toma
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = medicacion.hora,
-                    fontSize = 13.sp, // Tamaño pequeño
-                    color = Color(0xFF666666) // Gris medio
+                    fontSize = 13.sp,
+                    color = Color(0xFF666666)
                 )
-                Spacer(modifier = Modifier.height(1.dp)) // Espacio mínimo
-
-                // Dosis
+                Spacer(modifier = Modifier.height(1.dp))
                 Text(
                     text = medicacion.dosis,
-                    fontSize = 13.sp, // Tamaño pequeño
-                    color = Color(0xFF666666) // Gris medio
+                    fontSize = 13.sp,
+                    color = Color(0xFF666666)
                 )
             }
 
-            // Botón de edición (icono)
             IconButton(
                 onClick = onEdit,
-                modifier = Modifier.size(36.dp) // Tamaño del área clickeable
+                modifier = Modifier.size(36.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Edit, // Icono de lápiz/editar
+                    imageVector = Icons.Default.Edit,
                     contentDescription = "Editar",
-                    tint = Color(0xFF666666), // Color gris medio
-                    modifier = Modifier.size(20.dp) // Tamaño del icono
+                    tint = Color(0xFF666666),
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

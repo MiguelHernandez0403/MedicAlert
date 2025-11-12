@@ -18,7 +18,9 @@ import com.google.gson.Gson
 import com.miguelheranandezysantiagocabeza.medicalert.View.AddEditMediScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.HistoryScreen
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+import com.miguelheranandezysantiagocabeza.medicalert.View.AddEditCitaScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.ChargeScreen
+import com.miguelheranandezysantiagocabeza.medicalert.View.CitasScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.DetallesMedicacionScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.MedicacionesScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.WelcomeScreen
@@ -53,11 +55,7 @@ fun NavigationApp() {
 
         composable(route = "Medicacion") {
             MedicacionesScreen (
-                OnClickDetalles = { medicacion ->
-                    // Serializamos el objeto a JSON
-                    val medicacionJson = Uri.encode(Gson().toJson(medicacion))
-                    navController.navigate("Detalle/$medicacionJson")
-                },
+                OnClickDetalles = { navController.navigate("Detalle")},
                 OnClickEditar = { navController.navigate("AddEditMedi") },
                 OnclickVolver = { navController.popBackStack() },
                 OnclickHistorial = {navController.navigate("Historial")}
@@ -67,31 +65,32 @@ fun NavigationApp() {
         composable(route = "AddEditMedi") {
             AddEditMediScreen (
                 onBack = { navController.popBackStack() },
-                onSave = { nombre, dosis, regularidad, hora, foto ->
-                    navController.popBackStack()
-                }
+                onSave = { navController.popBackStack() }
             )
         }
 
         composable(route = "Historial"){
-            HistoryScreen(
-                items = emptyList(),
-                onBack = { navController.popBackStack() }
+            HistoryScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(route = "Detalle") {
+            DetallesMedicacionScreen(
+                OnClickVolver = { navController.popBackStack() }
             )
         }
 
-        composable(route = "Detalle/{medicacion}",
-            arguments = listOf(navArgument("medicacion") { type = NavType.StringType })
-        ) {
-                backStackEntry ->
-            val medicacionJson = backStackEntry.arguments?.getString("medicacion")
-            val medicacion = Gson().fromJson(
-                Uri.decode(medicacionJson),
-                Medicacion::class.java
+        composable(route = "Citas") {
+            CitasScreen (
+                OnClickAgregar = { navController.navigate("AddEditCita")},
+                OnclickVolver = { navController.popBackStack() }
             )
-            DetallesMedicacionScreen(medicacion,
-                OnClickVolver = { navController.popBackStack()
-                })
+        }
+
+        composable(route = "AddEditCita") {
+            AddEditCitaScreen(
+                onBack = { navController.popBackStack() },
+                onSave = { navController.popBackStack() }
+            )
         }
     }
 }

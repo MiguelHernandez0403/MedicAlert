@@ -23,50 +23,42 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import java.util.*
 
-// Colores personalizados para la pantalla
-val HeaderColor = Color(0xFF87CEEB) // Azul claro para la barra superior
-val ButtonColor = Color(0xFF87CEEB) // Azul claro para el botón Guardar
-val PhotoBoxColor = Color(0xFFF5F5F5) // Gris muy claro para el cuadro de la foto
-val PrimaryTextColor = Color(0xFF2C2C2C) // Gris oscuro para texto principal
-val SecondaryTextColor = Color(0xFF666666) // Gris medio para texto secundario
-val DividerColor = Color(0xFFE0E0E0) // Gris claro para los divisores
 
-/**
- * Pantalla para Editar o Añadir una nueva Medicación
- * Permite al usuario ingresar información de una medicación y seleccionar una foto
- *
- * @param onBack Callback que se ejecuta al hacer clic en volver
- * @param onSave Callback que se ejecuta al guardar, recibe todos los datos de la medicación
- */
+
+val HeaderColor = Color(0xFF87CEEB)
+val ButtonColor = Color(0xFF87CEEB)
+val PhotoBoxColor = Color(0xFFF5F5F5)
+val PrimaryTextColor = Color(0xFF2C2C2C)
+val SecondaryTextColor = Color(0xFF666666)
+val DividerColor = Color(0xFFE0E0E0)
+
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditMediScreen(
     onBack: () -> Unit,
-    onSave: (nombre: String, dosis: String, regularidad: String, hora: String, foto: Uri?) -> Unit
+    onSave: () -> Unit
 ) {
-    // Estados para almacenar los valores de los campos
-    var nombre by remember { mutableStateOf("acetaminofen") } // Nombre del medicamento
-    var dosis by remember { mutableStateOf("1 Tableta") } // Dosis (ej: "1 Tableta")
-    var regularidad by remember { mutableStateOf("diario") } // Frecuencia (ej: "diario")
-    var hora by remember { mutableStateOf("8:00 AM") } // Hora de toma
-    var fotoUri by remember { mutableStateOf<Uri?>(null) } // URI de la foto seleccionada
+    var nombre by remember { mutableStateOf("acetaminofen") }
+    var dosis by remember { mutableStateOf("1 Tableta") }
+    var regularidad by remember { mutableStateOf("diario") }
+    var hora by remember { mutableStateOf("8:00 AM") }
+    var fotoUri by remember { mutableStateOf<Uri?>(null) }
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
-    // TimePickerDialog para seleccionar la hora
     val timePicker by remember {
         mutableStateOf(
             TimePickerDialog(
                 context,
                 { _, hour, minute ->
-                    // Formatea la hora en formato 12 horas con AM/PM
                     hora = String.format(
                         "%02d:%02d %s",
                         if (hour % 12 == 0) 12 else hour % 12,
@@ -76,29 +68,25 @@ fun AddEditMediScreen(
                 },
                 calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE),
-                false // Formato de 12 horas
+                false
             )
         )
     }
 
-    // Launcher para seleccionar imágenes de la galería
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        fotoUri = uri // Guarda la URI de la imagen seleccionada
+        fotoUri = uri
     }
 
-    // Scaffold: estructura básica de la pantalla con barra superior
     Scaffold(
-        // Barra superior personalizada
         topBar = {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Ocupa todo el ancho
-                    .background(HeaderColor) // Fondo azul claro
-                    .padding(vertical = 14.dp) // Padding vertical
+                    .fillMaxWidth()
+                    .background(HeaderColor)
+                    .padding(vertical = 14.dp)
             ) {
-                // Botón de volver alineado a la izquierda
                 IconButton(
                     onClick = onBack,
                     modifier = Modifier
@@ -108,32 +96,29 @@ fun AddEditMediScreen(
                     Icon(
                         Icons.Default.ArrowBack,
                         contentDescription = "Atrás",
-                        tint = Color.White // Icono blanco
+                        tint = Color.White
                     )
                 }
-                // Título centrado de dos líneas
                 Text(
                     text = "Editar/Añadir\nMedicación",
                     modifier = Modifier.align(Alignment.Center),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp, // Tamaño reducido
+                    fontSize = 16.sp,
                     lineHeight = 20.sp,
-                    color = Color.White // Texto blanco
+                    color = Color.White
                 )
             }
         },
-        containerColor = Color.White // Fondo blanco para la pantalla
+        containerColor = Color.White
     ) { innerPadding ->
-        // Column: contenido principal organizado verticalmente
         Column(
             modifier = Modifier
-                .padding(innerPadding) // Respeta el padding del Scaffold
+                .padding(innerPadding)
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 24.dp), // Padding interno
-            verticalArrangement = Arrangement.spacedBy(20.dp) // Espacio entre elementos
+                .padding(horizontal = 20.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // Campo de Nombre
             MedicationInput(
                 label = "Nombre",
                 value = nombre,
@@ -141,7 +126,6 @@ fun AddEditMediScreen(
                 placeholder = "acetaminofen"
             )
 
-            // Campo de Dosis
             MedicationInput(
                 label = "Dosis",
                 value = dosis,
@@ -149,27 +133,23 @@ fun AddEditMediScreen(
                 placeholder = "1 Tableta"
             )
 
-            // Row: Regularidad y Hora en la misma fila
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween // Separa los elementos
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Campo de Regularidad
                 MedicationInput(
                     label = "Regularidad",
                     value = regularidad,
                     onValueChange = { regularidad = it },
                     placeholder = "diario",
-                    modifier = Modifier.weight(1f) // Ocupa la mitad del espacio
+                    modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(16.dp)) // Espacio entre campos
+                Spacer(modifier = Modifier.width(16.dp))
 
-                // Campo de Hora (clickeable para abrir el selector de hora)
                 Column(
-                    modifier = Modifier.weight(1f) // Ocupa la otra mitad del espacio
+                    modifier = Modifier.weight(1f)
                 ) {
-                    // Label "Hora"
                     Text(
                         text = "Hora",
                         fontWeight = FontWeight.SemiBold,
@@ -178,18 +158,16 @@ fun AddEditMediScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    // Valor de la hora (clickeable)
                     Text(
                         text = hora,
                         fontSize = 13.sp,
                         color = SecondaryTextColor,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { timePicker.show() } // Abre el selector de hora
+                            .clickable { timePicker.show() }
                             .padding(vertical = 4.dp)
                     )
 
-                    // Divisor debajo del campo
                     Divider(
                         color = DividerColor,
                         thickness = 1.dp,
@@ -198,25 +176,22 @@ fun AddEditMediScreen(
                 }
             }
 
-            // Box para seleccionar foto del medicamento
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Ocupa todo el ancho
-                    .height(70.dp) // Altura fija
-                    .background(PhotoBoxColor, RoundedCornerShape(8.dp)) // Fondo gris claro con bordes redondeados
-                    .clickable { launcher.launch("image/*") }, // Abre el selector de imágenes
-                contentAlignment = Alignment.Center // Centra el contenido
+                    .fillMaxWidth()
+                    .height(70.dp)
+                    .background(PhotoBoxColor, RoundedCornerShape(8.dp))
+                    .clickable { launcher.launch("image/*") },
+                contentAlignment = Alignment.Center
             ) {
-                // Si hay una foto seleccionada, la muestra
                 if (fotoUri != null) {
                     Image(
                         painter = rememberAsyncImagePainter(fotoUri),
                         contentDescription = "Foto medicamento",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop // Recorta la imagen para llenar el espacio
+                        contentScale = ContentScale.Crop
                     )
                 } else {
-                    // Si no hay foto, muestra el icono de cámara y texto "FOTO"
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
@@ -238,17 +213,16 @@ fun AddEditMediScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f)) // Empuja el botón Guardar hacia abajo
+            Spacer(modifier = Modifier.weight(1f))
 
-            // Botón de Guardar
             Button(
-                onClick = { onSave(nombre, dosis, regularidad, hora, fotoUri) },
+                onClick = { onSave() },
                 modifier = Modifier
-                    .fillMaxWidth() // Ocupa todo el ancho
-                    .height(50.dp), // Altura estándar
-                shape = RoundedCornerShape(8.dp), // Bordes redondeados suaves
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = ButtonColor // Azul claro
+                    containerColor = ButtonColor
                 )
             ) {
                 Text(
@@ -262,16 +236,6 @@ fun AddEditMediScreen(
     }
 }
 
-/**
- * Campo de entrada personalizado para medicación
- * Muestra un label, un campo de texto editable y un divisor
- *
- * @param label Etiqueta del campo (ej: "Nombre", "Dosis")
- * @param value Valor actual del campo
- * @param onValueChange Callback que se ejecuta cuando cambia el valor
- * @param placeholder Texto placeholder cuando el campo está vacío
- * @param modifier Modificador opcional para personalizar el componente
- */
 @Composable
 fun MedicationInput(
     label: String,
@@ -281,57 +245,41 @@ fun MedicationInput(
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        // Label del campo
         Text(
             text = label,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp, // Tamaño reducido
+            fontSize = 14.sp,
             color = PrimaryTextColor
         )
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Campo de texto básico
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             textStyle = TextStyle(
-                fontSize = 13.sp, // Tamaño de texto reducido
+                fontSize = 13.sp,
                 color = SecondaryTextColor
             ),
-            singleLine = true, // Solo una línea
+            singleLine = true,
             decorationBox = { innerTextField ->
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    // Muestra el placeholder si el campo está vacío
                     if (value.isEmpty()) {
                         Text(
                             text = placeholder,
                             fontSize = 13.sp,
-                            color = SecondaryTextColor.copy(alpha = 0.5f) // Semi-transparente
+                            color = SecondaryTextColor.copy(alpha = 0.5f)
                         )
                     }
-                    innerTextField() // Renderiza el campo de texto
+                    innerTextField()
                 }
             },
             modifier = Modifier.padding(vertical = 4.dp)
         )
 
-        // Divisor debajo del campo
         Divider(
             color = DividerColor,
             thickness = 1.dp,
             modifier = Modifier.padding(top = 4.dp)
-        )
-    }
-}
-
-// Preview de la pantalla completa
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun AddEditMediPreview() {
-    MaterialTheme {
-        AddEditMediScreen(
-            onBack = {},
-            onSave = { _, _, _, _, _ -> }
         )
     }
 }
