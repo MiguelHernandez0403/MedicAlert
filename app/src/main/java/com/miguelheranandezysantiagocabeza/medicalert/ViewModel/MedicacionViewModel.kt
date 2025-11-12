@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
 import com.miguelheranandezysantiagocabeza.medicalert.data.local.Entities.MedicacionEntity
-import com.miguelheranandezysantiagocabeza.medicalert.data.local.Repositories.MedicacionRepository
+import com.miguelheranandezysantiagocabeza.medicalert.domain.Repositories.MedicacionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

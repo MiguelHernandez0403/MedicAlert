@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+import com.miguelheranandezysantiagocabeza.medicalert.domain.Models.Medicacion
 import com.miguelheranandezysantiagocabeza.medicalert.R
 
 @OptIn(ExperimentalMaterial3Api::class)

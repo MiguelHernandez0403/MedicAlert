@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
 import com.miguelheranandezysantiagocabeza.medicalert.data.local.Entities.MedicacionEntity
 
 @Dao
@@ -22,14 +21,14 @@ interface MedicacionDao {
 
     // CREATE - Inserta los datos en la tabla
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(medicacion: MedicacionEntity)
+    suspend fun insertMedicacion(medicacion: MedicacionEntity)
 
     // UPDATE - Actualiza datos especificos en la tabla usando el objeto completo
     @Update
-    suspend fun update(medicacion: MedicacionEntity)
+    suspend fun updateMedicacion(medicacion: MedicacionEntity)
 
     // DELETE - Borra datos especificos de la tabla usando el ID
-    @Query("DELETE FROM medicacion WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    @Delete
+    suspend fun deleteMedicacion(medicacion: MedicacionEntity)
 
 }
