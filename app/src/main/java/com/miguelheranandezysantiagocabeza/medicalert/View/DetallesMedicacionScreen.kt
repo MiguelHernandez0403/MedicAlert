@@ -11,31 +11,59 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
 import com.miguelheranandezysantiagocabeza.medicalert.R
+import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetallesMedicacionScreen(
+    idMedicacion: Int,
     OnClickVolver: () -> Unit
 ) {
+
+    val app = LocalContext.current.applicationContext as MedicAlertApplication
+
+    val viewModel: MedicacionViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MedicacionViewModel(app.medicacionRepository) as T
+            }
+        }
+    )
+
+    // 1. OBTENER DATOS DE ROOM
+    val medicacion = viewModel.obtenerPorId(idMedicacion).collectAsState(initial = null)
+
+    if (medicacion.value == null) {
+        Text(
+            text = "Cargando...",
+            modifier = Modifier.padding(20.dp)
+        )
+        return
+    }
+
+    // 2. UI REAL DE DETALLES
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                         Text(
                             text = "Detalles de\nMedicación",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2C2C2C),
+                            color = Color.White,
                             textAlign = TextAlign.Center,
                             lineHeight = 22.sp
                         )
@@ -56,105 +84,107 @@ fun DetallesMedicacionScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+
+        DetallesUI(
+            medicacion = medicacion.value!!,
+            onVolver = OnClickVolver,
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
+}
+
+@Composable
+fun DetallesUI(
+    medicacion: MedicacionEntity,
+    onVolver: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Image(
+            painter = painterResource(R.drawable.camara),
+            contentDescription = "Imagen del medicamento",
+            modifier = Modifier.size(100.dp)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = medicacion.nombre,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2C2C2C)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = "${medicacion.hora} · cada ${medicacion.frecuenciaHoras} horas",
+            fontSize = 14.sp,
+            color = Color(0xFF666666)
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Color.White),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFFE8F4F8)
+            )
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Image(
-                painter = painterResource(R.drawable.camara),
-                contentDescription = "Imagen del medicamento",
-                modifier = Modifier.size(100.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Nombre Medicamento",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF2C2C2C)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "8:00 AM · 12 Horas",
-                fontSize = 14.sp,
-                color = Color(0xFF666666)
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Card(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE8F4F8)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
-                ) {
-                    Text(
-                        text = "Dosis",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2C2C2C)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "1 TABLETA",
-                            fontSize = 16.sp,
-                            color = Color(0xFF2C2C2C)
-                        )
-                        Text(
-                            text = "12 Horas",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF2C2C2C)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = OnClickVolver,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 32.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF87CEEB)
-                ),
-                shape = RoundedCornerShape(8.dp)
+                    .padding(20.dp)
             ) {
                 Text(
-                    text = "Volver",
+                    text = "Dosis",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF2C2C2C)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = medicacion.dosis,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    color = Color(0xFF2C2C2C)
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = onVolver,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 32.dp)
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF87CEEB)
+            ),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = "Volver",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
         }
     }
 }

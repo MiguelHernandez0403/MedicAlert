@@ -10,9 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,10 +23,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
 import java.util.*
-
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
+import coil.compose.rememberAsyncImagePainter
+import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
 
 val HeaderColor = Color(0xFF87CEEB)
 val ButtonColor = Color(0xFF87CEEB)
@@ -37,19 +36,33 @@ val PrimaryTextColor = Color(0xFF2C2C2C)
 val SecondaryTextColor = Color(0xFF666666)
 val DividerColor = Color(0xFFE0E0E0)
 
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditMediScreen(
+    idMedicacion: Int?,
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,
+    viewModel: MedicacionViewModel
 ) {
-    var nombre by remember { mutableStateOf("acetaminofen") }
-    var dosis by remember { mutableStateOf("1 Tableta") }
-    var regularidad by remember { mutableStateOf("diario") }
-    var hora by remember { mutableStateOf("8:00 AM") }
+
+    // ------------------- CARGAR DATOS SI ES EDICIÓN -------------------
+    val medicacionExistente = viewModel.obtenerPorId(idMedicacion).collectAsState(initial = null)
+
+    var nombre by remember { mutableStateOf("") }
+    var dosis by remember { mutableStateOf("") }
+    var hora by remember { mutableStateOf("") }
     var fotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    LaunchedEffect(medicacionExistente.value) {
+        medicacionExistente.value?.let { m ->
+            nombre = m.nombre
+            dosis = m.dosis
+            hora = m.hora
+            fotoUri = m.imagen?.let { Uri.parse(it) }
+        }
+    }
+
+    // --------------------------------------------------------------
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -100,7 +113,7 @@ fun AddEditMediScreen(
                     )
                 }
                 Text(
-                    text = "Editar/Añadir\nMedicación",
+                    text = if (idMedicacion == -1) "Añadir\nMedicación" else "Editar\nMedicación",
                     modifier = Modifier.align(Alignment.Center),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.SemiBold,
@@ -112,6 +125,7 @@ fun AddEditMediScreen(
         },
         containerColor = Color.White
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -119,6 +133,7 @@ fun AddEditMediScreen(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+
             MedicationInput(
                 label = "Nombre",
                 value = nombre,
@@ -133,47 +148,29 @@ fun AddEditMediScreen(
                 placeholder = "1 Tableta"
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                MedicationInput(
-                    label = "Regularidad",
-                    value = regularidad,
-                    onValueChange = { regularidad = it },
-                    placeholder = "diario",
-                    modifier = Modifier.weight(1f)
+            Column {
+                Text(
+                    text = "Hora",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = PrimaryTextColor
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = hora,
+                    fontSize = 13.sp,
+                    color = SecondaryTextColor,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { timePicker.show() }
+                        .padding(vertical = 4.dp)
                 )
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Hora",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = PrimaryTextColor
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = hora,
-                        fontSize = 13.sp,
-                        color = SecondaryTextColor,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { timePicker.show() }
-                            .padding(vertical = 4.dp)
-                    )
-
-                    Divider(
-                        color = DividerColor,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
+                Divider(
+                    color = DividerColor,
+                    thickness = 1.dp
+                )
             }
 
             Box(
@@ -216,7 +213,30 @@ fun AddEditMediScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onSave() },
+                onClick = {
+                    if (idMedicacion == -1) {
+                        // NUEVO
+                        viewModel.insertar(
+                            nombre = nombre,
+                            dosis = dosis,
+                            hora = hora,
+                            frecuencia = 8,
+                            imagen = fotoUri?.toString()
+                        )
+                    } else {
+                        // EDITAR
+                        viewModel.actualizar(
+                            id = idMedicacion,
+                            nombre = nombre,
+                            dosis = dosis,
+                            hora = hora,
+                            frecuencia = 8,
+                            imagen = fotoUri?.toString()
+                        )
+                    }
+
+                    onSave()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -226,7 +246,7 @@ fun AddEditMediScreen(
                 )
             ) {
                 Text(
-                    "Guardar",
+                    if (idMedicacion == -1) "Guardar" else "Actualizar",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = Color.White

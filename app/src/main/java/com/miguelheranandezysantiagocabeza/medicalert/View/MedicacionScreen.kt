@@ -12,26 +12,37 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
-import com.miguelheranandezysantiagocabeza.medicalert.R
+import androidx.lifecycle.ViewModel
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionEntity
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
+import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
+import androidx.lifecycle.ViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicacionesScreen(
-    OnClickDetalles: () -> Unit,
+    OnClickDetalles: (Int) -> Unit,
     OnClickEditar: () -> Unit,
     OnclickVolver: () -> Unit,
     OnclickHistorial: () -> Unit
 ) {
-    val medicaciones = remember {
-        mutableStateListOf<Medicacion>(
-            Medicacion("Aspirina", "8:00 AM", "1 TABLETA", 6, imagen = R.drawable.acetaminofen),
-            Medicacion("Loratadina", "7:00 AM", "1 TABLETA", 12, null)
-        )
-    }
+
+    val app = LocalContext.current.applicationContext as MedicAlertApplication
+    val viewModel: MedicacionViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return MedicacionViewModel(app.medicacionRepository) as T
+            }
+        }
+    )
+
+    val lista by viewModel.medicaciones.collectAsState()
+
 
     Scaffold(
         topBar = {
@@ -102,11 +113,11 @@ fun MedicacionesScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            medicaciones.forEach { medicacion ->
+            lista.forEach { medicacion ->
                 MedicacionCard(
                     medicacion = medicacion,
                     onEdit = { OnClickEditar() },
-                    onDetalles = { OnClickDetalles() }
+                    onDetalles = { OnClickDetalles(medicacion.id) }
                 )
             }
         }
@@ -115,7 +126,7 @@ fun MedicacionesScreen(
 
 @Composable
 fun MedicacionCard(
-    medicacion: Medicacion,
+    medicacion: MedicacionEntity,
     onEdit: () -> Unit,
     onDetalles: () -> Unit
 ) {
