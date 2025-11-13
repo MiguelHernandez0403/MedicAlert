@@ -5,23 +5,55 @@ import kotlinx.coroutines.flow.Flow
 
 class MedicacionRepository private constructor(context: Context) {
 
-    private val dao = MedicacionDatabase.getInstance(context).medicacionDao()
+    private val db = MedicacionDatabase.getInstance(context)
+    private val medicacionDao = db.medicacionDao()
+    private val historialDao = db.historialDao()
 
-    fun getAll(): Flow<List<MedicacionEntity>> = dao.getAll()
+    // ============================================================
+    //                        MEDICACIÓN
+    // ============================================================
 
-    suspend fun getById(id: Int) = dao.getById(id)
+    fun getAll(): Flow<List<MedicacionEntity>> =
+        medicacionDao.getAll()
 
-    fun getByIdFlow(id: Int): Flow<MedicacionEntity?> = dao.getByIdFlow(id)
+    suspend fun getById(id: Int) =
+        medicacionDao.getById(id)
 
-    suspend fun insert(item: MedicacionEntity) = dao.insert(item)
+    fun getByIdFlow(id: Int): Flow<MedicacionEntity?> =
+        medicacionDao.getByIdFlow(id)
 
-    suspend fun update(item: MedicacionEntity) = dao.update(item)
+    suspend fun insert(item: MedicacionEntity) =
+        medicacionDao.insert(item)
 
-    suspend fun delete(id: Int) = dao.deleteById(id)
+    suspend fun update(item: MedicacionEntity) =
+        medicacionDao.update(item)
+
+    suspend fun delete(id: Int) =
+        medicacionDao.deleteById(id)
+
+    // ============================================================
+    //                        HISTORIAL
+    // ============================================================
+
+    fun getHistorial(): Flow<List<HistorialEntity>> =
+        historialDao.getAll()
+
+    fun getHistorialPorMedicacion(id: Int): Flow<List<HistorialEntity>> =
+        historialDao.getByMedicacion(id)
+
+    suspend fun insertHistorial(item: HistorialEntity) =
+        historialDao.insert(item)
+
+    suspend fun deleteHistorial(id: Int) =
+        historialDao.delete(id)
+
+    suspend fun clearHistorial() =
+        historialDao.clear()
+
+    // ============================================================
 
     companion object {
-        @Volatile
-        private var INSTANCE: MedicacionRepository? = null
+        @Volatile private var INSTANCE: MedicacionRepository? = null
 
         fun getInstance(context: Context): MedicacionRepository {
             return INSTANCE ?: synchronized(this) {

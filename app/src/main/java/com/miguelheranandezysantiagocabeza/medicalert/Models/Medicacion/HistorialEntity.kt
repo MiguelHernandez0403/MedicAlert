@@ -3,12 +3,14 @@ package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "medicacion")
-data class MedicacionEntity(
+@Entity(tableName = "historial")
+data class HistorialEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val idMedicacion: Int,
     val nombre: String,
     val dosis: String,
-    val hora: String,
-    val frecuenciaHoras: Int,
-    val imagen: String?
+    val horaProgramada: String,
+    val horaTomada: String,
+    val fecha: String, // dd/MM/yyyy
+    val tipo: String = "manual"
 )

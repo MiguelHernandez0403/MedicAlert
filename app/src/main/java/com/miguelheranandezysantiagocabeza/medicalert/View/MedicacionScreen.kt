@@ -26,24 +26,13 @@ import androidx.lifecycle.ViewModelProvider
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicacionesScreen(
-    OnClickDetalles: (Int) -> Unit,
-    OnClickEditar: () -> Unit,
-    OnclickVolver: () -> Unit,
-    OnclickHistorial: () -> Unit
+    medicaciones: List<MedicacionEntity>,
+    onEditMedicacion: (Int) -> Unit,
+    onDetallesMedicacion: (Int) -> Unit,
+    onVolver: () -> Unit,
+    onHistorial: () -> Unit,
+    onAddMedicacion: () -> Unit
 ) {
-
-    val app = LocalContext.current.applicationContext as MedicAlertApplication
-    val viewModel: MedicacionViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return MedicacionViewModel(app.medicacionRepository) as T
-            }
-        }
-    )
-
-    val lista by viewModel.medicaciones.collectAsState()
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -51,26 +40,17 @@ fun MedicacionesScreen(
                     Text(
                         text = "Medicaciones",
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
                         color = Color.White
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { OnclickVolver() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.White
-                        )
+                    IconButton(onClick = onVolver) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
                 actions = {
-                    IconButton(onClick = { OnclickHistorial() }) {
-                        Icon(
-                            imageVector = Icons.Outlined.List,
-                            contentDescription = "Lista",
-                            tint = Color.White
-                        )
+                    IconButton(onClick = onHistorial) {
+                        Icon(Icons.Outlined.List, contentDescription = "Historial", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -79,107 +59,61 @@ fun MedicacionesScreen(
             )
         },
         bottomBar = {
-            Box(
+            Button(
+                onClick = onAddMedicacion,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                contentAlignment = Alignment.Center
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF87CEEB))
             ) {
-                Button(
-                    onClick = { OnClickEditar() },
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .height(40.dp)
-                        .padding(horizontal = 8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF87CEEB)
-                    ),
-                    shape = RoundedCornerShape(6.dp)
-                ) {
-                    Text(
-                        text = "Añadir Medicación",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.White
-                    )
-                }
+                Text("Añadir Medicación", color = Color.White)
             }
         }
-    ) { paddingValues ->
+    ) { padding ->
+
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(padding)
+                .padding(16.dp)
         ) {
-            lista.forEach { medicacion ->
+            medicaciones.forEach { medicacion ->
                 MedicacionCard(
                     medicacion = medicacion,
-                    onEdit = { OnClickEditar() },
-                    onDetalles = { OnClickDetalles(medicacion.id) }
+                    onEdit = { id -> onEditMedicacion(id) },
+                    onDetalles = { id -> onDetallesMedicacion(id) }
                 )
+                Spacer(Modifier.height(10.dp))
             }
         }
     }
 }
 
+
 @Composable
 fun MedicacionCard(
     medicacion: MedicacionEntity,
-    onEdit: () -> Unit,
-    onDetalles: () -> Unit
+    onEdit: (Int) -> Unit,
+    onDetalles: (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onDetalles),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            .clickable { onDetalles(medicacion.id) }   // ← AQUÍ PASAMOS EL ID REAL
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(12.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = medicacion.nombre,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2C2C2C)
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = medicacion.hora,
-                    fontSize = 13.sp,
-                    color = Color(0xFF666666)
-                )
-                Spacer(modifier = Modifier.height(1.dp))
-                Text(
-                    text = medicacion.dosis,
-                    fontSize = 13.sp,
-                    color = Color(0xFF666666)
-                )
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(medicacion.nombre)
+                Text(medicacion.hora)
+                Text(medicacion.dosis)
             }
 
-            IconButton(
-                onClick = onEdit,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Editar",
-                    tint = Color(0xFF666666),
-                    modifier = Modifier.size(20.dp)
-                )
+            IconButton(onClick = { onEdit(medicacion.id) }) {   // ← AQUÍ TAMBIÉN PASAMOS EL ID
+                Icon(Icons.Default.Edit, contentDescription = "Editar")
             }
         }
     }

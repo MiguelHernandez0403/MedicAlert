@@ -6,15 +6,20 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [MedicacionEntity::class],
-    version = 1,
+    entities = [
+        MedicacionEntity::class,
+        HistorialEntity::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class MedicacionDatabase : RoomDatabase() {
 
     abstract fun medicacionDao(): MedicacionDao
+    abstract fun historialDao(): HistorialDao   // ← OK
 
     companion object {
+
         @Volatile
         private var INSTANCE: MedicacionDatabase? = null
 
@@ -24,8 +29,10 @@ abstract class MedicacionDatabase : RoomDatabase() {
                     context.applicationContext,
                     MedicacionDatabase::class.java,
                     "medicacion_db"
-                ).fallbackToDestructiveMigration()
+                )
+                    .fallbackToDestructiveMigration()  // ← evita crashes por cambios
                     .build()
+
                 INSTANCE = instance
                 instance
             }

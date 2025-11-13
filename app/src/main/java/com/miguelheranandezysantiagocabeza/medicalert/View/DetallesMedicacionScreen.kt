@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
 import com.miguelheranandezysantiagocabeza.medicalert.R
 import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
@@ -42,7 +44,6 @@ fun DetallesMedicacionScreen(
         }
     )
 
-    // 1. OBTENER DATOS DE ROOM
     val medicacion = viewModel.obtenerPorId(idMedicacion).collectAsState(initial = null)
 
     if (medicacion.value == null) {
@@ -53,7 +54,6 @@ fun DetallesMedicacionScreen(
         return
     }
 
-    // 2. UI REAL DE DETALLES
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,11 +109,30 @@ fun DetallesUI(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Image(
-            painter = painterResource(R.drawable.camara),
-            contentDescription = "Imagen del medicamento",
-            modifier = Modifier.size(100.dp)
-        )
+        // ============================
+        // FOTO DESDE FILE INTERNO
+        // ============================
+        if (!medicacion.imagen.isNullOrEmpty()) {
+
+            val ruta = "file://${medicacion.imagen}"
+
+            Image(
+                painter = rememberAsyncImagePainter(ruta),
+                contentDescription = "Foto del medicamento",
+                modifier = Modifier
+                    .size(140.dp)
+                    .padding(8.dp),
+                contentScale = ContentScale.Crop
+            )
+
+        } else {
+
+            Image(
+                painter = painterResource(R.drawable.camara),
+                contentDescription = "Sin imagen",
+                modifier = Modifier.size(120.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -155,7 +174,7 @@ fun DetallesUI(
                     color = Color(0xFF2C2C2C)
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = medicacion.dosis,

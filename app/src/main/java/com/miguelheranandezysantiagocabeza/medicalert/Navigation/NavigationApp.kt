@@ -3,6 +3,7 @@ package com.miguelheranandezysantiagocabeza.medicalert.Navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,19 +58,41 @@ fun NavigationApp() {
         }
 
         composable("Medicacion") {
+
+            val app = LocalContext.current.applicationContext as MedicAlertApplication
+
+            val vm: MedicacionViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return MedicacionViewModel(app.medicacionRepository) as T
+                    }
+                }
+            )
+
+            val lista by vm.medicaciones.collectAsState()
+
             MedicacionesScreen(
-                OnClickDetalles = { id ->
+                medicaciones = lista,
+                onEditMedicacion = { id ->
+                    navController.navigate("AddEditMedi?id=$id")
+                },
+                onDetallesMedicacion = { id ->
                     navController.navigate("Detalle/$id")
                 },
-                OnClickEditar = {               // CREAR
-                    navController.navigate("AddEditMedi")
-                },
-                OnclickVolver = { navController.popBackStack() },
-                OnclickHistorial = { navController.navigate("Historial") }
+                onVolver = { navController.popBackStack() },
+                onHistorial = { navController.navigate("Historial") },
+                onAddMedicacion = {
+                    navController.navigate("AddEditMedi?id=-1")
+                }
             )
         }
 
-        composable("AddEditMedi") {
+        composable(
+            route = "AddEditMedi?id={id}",
+            arguments = listOf(navArgument("id") { defaultValue = -1; type = NavType.IntType })
+        ) { backStackEntry ->
+
+            val id = backStackEntry.arguments?.getInt("id") ?: -1
 
             val app = LocalContext.current.applicationContext as MedicAlertApplication
             val viewModel: MedicacionViewModel = viewModel(
@@ -81,35 +104,9 @@ fun NavigationApp() {
             )
 
             AddEditMediScreen(
-                onBack = { navController.popBackStack() },
-                onSave = { navController.popBackStack() },
-                idMedicacion = null,
-                viewModel = viewModel
-            )
-        }
-
-        composable(
-            route = "AddEditMedi/{id}",
-            arguments = listOf(
-                navArgument("id") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-
-            val app = LocalContext.current.applicationContext as MedicAlertApplication
-            val viewModel: MedicacionViewModel = viewModel (
-                factory = object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return MedicacionViewModel(app.medicacionRepository) as T
-                    }
-                }
-            )
-
-            val id = backStackEntry.arguments?.getInt("id")
-
-            AddEditMediScreen(
-                onBack = { navController.popBackStack() },
-                onSave = { navController.popBackStack() },
                 idMedicacion = id,
+                onBack = { navController.popBackStack() },
+                onSave = { navController.popBackStack() },
                 viewModel = viewModel
             )
         }

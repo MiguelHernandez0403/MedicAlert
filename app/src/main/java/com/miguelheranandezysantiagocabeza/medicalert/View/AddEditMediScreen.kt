@@ -36,6 +36,8 @@ val PrimaryTextColor = Color(0xFF2C2C2C)
 val SecondaryTextColor = Color(0xFF666666)
 val DividerColor = Color(0xFFE0E0E0)
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditMediScreen(
@@ -44,9 +46,27 @@ fun AddEditMediScreen(
     onSave: () -> Unit,
     viewModel: MedicacionViewModel
 ) {
+    val context = LocalContext.current
+
+    fun guardarImagenPermanente(uri: Uri?): String? {
+        if (uri == null) return null
+
+
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+
+        val nombreArchivo = "medicacion_${System.currentTimeMillis()}.jpg"
+        val archivo = context.getFileStreamPath(nombreArchivo)
+
+        archivo.outputStream().use { output ->
+            inputStream.copyTo(output)
+        }
+
+        return archivo.absolutePath
+    }
 
     // ------------------- CARGAR DATOS SI ES EDICIÓN -------------------
-    val medicacionExistente = viewModel.obtenerPorId(idMedicacion).collectAsState(initial = null)
+    val medicacionExistente = viewModel.obtenerPorId(idMedicacion)
+        .collectAsState(initial = null)
 
     var nombre by remember { mutableStateOf("") }
     var dosis by remember { mutableStateOf("") }
@@ -64,7 +84,7 @@ fun AddEditMediScreen(
 
     // --------------------------------------------------------------
 
-    val context = LocalContext.current
+
     val calendar = Calendar.getInstance()
 
     val timePicker by remember {
@@ -214,16 +234,7 @@ fun AddEditMediScreen(
 
             Button(
                 onClick = {
-                    if (idMedicacion == -1) {
-                        // NUEVO
-                        viewModel.insertar(
-                            nombre = nombre,
-                            dosis = dosis,
-                            hora = hora,
-                            frecuencia = 8,
-                            imagen = fotoUri?.toString()
-                        )
-                    } else {
+                    if (idMedicacion != null && idMedicacion != -1) {
                         // EDITAR
                         viewModel.actualizar(
                             id = idMedicacion,
@@ -231,7 +242,16 @@ fun AddEditMediScreen(
                             dosis = dosis,
                             hora = hora,
                             frecuencia = 8,
-                            imagen = fotoUri?.toString()
+                            imagen = guardarImagenPermanente(fotoUri)
+                        )
+                    } else {
+                        // NUEVO
+                        viewModel.insertar(
+                            nombre = nombre,
+                            dosis = dosis,
+                            hora = hora,
+                            frecuencia = 8,
+                            imagen = guardarImagenPermanente(fotoUri)
                         )
                     }
 
