@@ -2,9 +2,9 @@ package com.miguelheranandezysantiagocabeza.medicalert.ViewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.HistorialEntity
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionEntity
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionRepository
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.HistorialEntity
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.MedicacionEntity
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.repository.MedicacionRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat

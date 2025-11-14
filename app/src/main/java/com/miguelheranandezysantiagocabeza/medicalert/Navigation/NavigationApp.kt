@@ -28,6 +28,7 @@ import com.miguelheranandezysantiagocabeza.medicalert.View.DetallesMedicacionScr
 import com.miguelheranandezysantiagocabeza.medicalert.View.MedicacionesScreen
 import com.miguelheranandezysantiagocabeza.medicalert.View.WelcomeScreen
 import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
+import com.miguelheranandezysantiagocabeza.medicalert.viewmodel.CitasViewModel
 import kotlinx.coroutines.delay
 
 
@@ -129,16 +130,52 @@ fun NavigationApp() {
         }
 
         composable(route = "Citas") {
+
+            val app = LocalContext.current.applicationContext as MedicAlertApplication
+
+            val vm: CitasViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return CitasViewModel(app.citasRepository) as T
+                    }
+                }
+            )
+
+            val lista by vm.citas.collectAsState()
+
             CitasScreen (
-                OnClickAgregar = { navController.navigate("AddEditCita")},
+                citas = lista,
+                OnClickEdit = { id ->
+                    navController.navigate("AddEditCita?id=$id")
+                },
+                OnClickAgregar = {
+                    navController.navigate("AddEditCita?id=-1")
+                },
                 OnclickVolver = { navController.popBackStack() }
             )
         }
 
-        composable(route = "AddEditCita") {
+        composable(route = "AddEditCita?id={id}",
+            arguments = listOf(navArgument("id") { defaultValue = -1; type = NavType.IntType })
+        ) {backStackEntry ->
+
+            val id = backStackEntry.arguments?.getInt("id") ?: -1
+
+            val app = LocalContext.current.applicationContext as MedicAlertApplication
+            val viewModel: CitasViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return CitasViewModel(app.citasRepository) as T
+                    }
+                }
+            )
+
+
             AddEditCitaScreen(
+                idCita = id,
                 onBack = { navController.popBackStack() },
-                onSave = { navController.popBackStack() }
+                onSave = { navController.popBackStack() },
+                viewModel = viewModel
             )
         }
     }

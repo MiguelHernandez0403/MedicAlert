@@ -1,11 +1,14 @@
-package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.repository
 
 import android.content.Context
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionDatabase
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.HistorialEntity
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.MedicacionEntity
 import kotlinx.coroutines.flow.Flow
 
 class MedicacionRepository private constructor(context: Context) {
 
-    private val db = MedicacionDatabase.getInstance(context)
+    private val db = MedicacionDatabase.Companion.getInstance(context)
     private val medicacionDao = db.medicacionDao()
     private val historialDao = db.historialDao()
 

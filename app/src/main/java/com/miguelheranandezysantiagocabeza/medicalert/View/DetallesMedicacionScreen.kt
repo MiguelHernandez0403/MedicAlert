@@ -25,7 +25,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
 import com.miguelheranandezysantiagocabeza.medicalert.R
 import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionEntity
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.MedicacionEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

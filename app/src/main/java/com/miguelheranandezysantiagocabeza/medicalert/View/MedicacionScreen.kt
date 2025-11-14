@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionEntity
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.MedicacionEntity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
 import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel

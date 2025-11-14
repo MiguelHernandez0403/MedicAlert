@@ -1,6 +1,11 @@
-package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.MedicacionEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -15,7 +20,7 @@ interface MedicacionDao {
     @Query("SELECT * FROM medicacion WHERE id = :id LIMIT 1")
     fun getByIdFlow(id: Int): Flow<MedicacionEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insert(medicacion: MedicacionEntity)
 
     @Update

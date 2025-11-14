@@ -20,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.miguelheranandezysantiagocabeza.medicalert.viewmodel.CitasViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.*
 
 val CitaHeaderColor = Color(0xFF87CEEB)
@@ -31,16 +34,36 @@ val CitaDividerColor = Color(0xFFE0E0E0)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditCitaScreen(
+    idCita: Int?,                 // null o -1 -> nueva, >=0 -> editar
     onBack: () -> Unit,
-    onSave: () -> Unit
+    onSave: () -> Unit,           // se llama después de insertar/actualizar
+    viewModel: CitasViewModel
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Estados de los campos
     var titulo by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
     var hora by remember { mutableStateOf("") }
     var lugar by remember { mutableStateOf("") }
-    var notas by remember { mutableStateOf("") }
+    var notas by remember { mutableStateOf("") }   // YA NO ES String?
 
-    val context = LocalContext.current
+    // Cargar datos si es edición
+    LaunchedEffect(idCita) {
+        if (idCita != null && idCita != -1) {
+            viewModel.obtenerPorId(idCita).collectLatest { m ->
+                if (m != null) {
+                    titulo = m.titulo
+                    fecha = m.fecha
+                    hora = m.hora
+                    lugar = m.lugar
+                    notas = m.notas ?: ""
+                }
+            }
+        }
+    }
+
     val calendar = Calendar.getInstance()
 
     val datePicker = remember {
@@ -205,7 +228,30 @@ fun AddEditCitaScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { onSave() },
+                onClick = {
+                    if (idCita == null || idCita == -1) {
+                        // Crear nueva cita
+                        viewModel.insertar(
+                            titulo = titulo,
+                            fecha = fecha,
+                            hora = hora,
+                            lugar = lugar,
+                            notas = notas
+                        )
+                    } else {
+                        // Actualizar cita existente
+                        viewModel.actualizar(
+                            id = idCita,
+                            titulo = titulo,
+                            fecha = fecha,
+                            hora = hora,
+                            lugar = lugar,
+                            notas = notas
+                        )
+                    }
+
+                    onSave() // volver atrás
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

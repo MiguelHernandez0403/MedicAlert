@@ -1,4 +1,4 @@
-package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

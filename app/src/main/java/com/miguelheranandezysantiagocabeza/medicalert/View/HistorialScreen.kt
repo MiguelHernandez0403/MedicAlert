@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.miguelheranandezysantiagocabeza.medicalert.MedicAlertApplication
-import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.HistorialEntity
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.HistorialEntity
 import com.miguelheranandezysantiagocabeza.medicalert.ViewModel.MedicacionViewModel
 
 private val HistoryHeaderColor = Color(0xFF87CEEB)

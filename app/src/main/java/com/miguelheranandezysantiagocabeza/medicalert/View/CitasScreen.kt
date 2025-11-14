@@ -13,25 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-data class Cita(
-    val titulo: String,
-    val fecha: String,
-    val lugar: String
-)
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.CitasEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasScreen(
+    citas: List<CitasEntity>,
+    OnClickEdit: (Int) -> Unit,
     OnClickAgregar: () -> Unit,
     OnclickVolver: () -> Unit
 ) {
-    val citas = remember {
-        mutableStateListOf(
-            Cita("Odontólogo", "12/11/2025 - 3:00 PM", "Clínica Santa María"),
-            Cita("Control general", "18/11/2025 - 10:00 AM", "Hospital Universitario")
-        )
-    }
 
     Scaffold(
         topBar = {
@@ -96,7 +87,7 @@ fun CitasScreen(
             citas.forEach { cita ->
                 CitaCard(
                     cita = cita,
-                    onEditar = { OnClickAgregar() }
+                    onEditar = { id -> OnClickEdit(id) }
                 )
             }
         }
@@ -105,8 +96,8 @@ fun CitasScreen(
 
 @Composable
 fun CitaCard(
-    cita: Cita,
-    onEditar: () -> Unit
+    cita: CitasEntity,
+    onEditar: (Int) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -150,7 +141,7 @@ fun CitaCard(
             }
 
             IconButton(
-                onClick = onEditar,
+                onClick = { onEditar(cita.id) },
                 modifier = Modifier.size(36.dp)
             ) {
                 Icon(

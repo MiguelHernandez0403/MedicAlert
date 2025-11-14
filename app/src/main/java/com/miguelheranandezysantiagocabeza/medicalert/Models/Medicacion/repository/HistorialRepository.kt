@@ -1,11 +1,13 @@
-package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion
+package com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.repository
 
 import android.content.Context
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionDatabase
+import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.HistorialEntity
 import kotlinx.coroutines.flow.Flow
 
 class HistorialRepository private constructor(context: Context) {
 
-    private val historialDao = MedicacionDatabase.getInstance(context).historialDao()
+    private val historialDao = MedicacionDatabase.Companion.getInstance(context).historialDao()
 
     fun getHistorial(): Flow<List<HistorialEntity>> = historialDao.getAll()
 
