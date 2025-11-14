@@ -7,10 +7,14 @@ import androidx.room.PrimaryKey
 data class CitasEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+
     val titulo: String,
-    val fecha: String,          // visible
-    val hora: String,           // visible
-    val fechaHoraMillis: Long,  // 🔥 obligatorio para alarmas
+    val fecha: String,
+    val hora: String,
+
+    // 🔥 NECESARIO PARA NOTIFICACIONES Y ORDENAR POR TIEMPO
+    val fechaHoraMillis: Long,
+
     val lugar: String,
     val notas: String?
 )

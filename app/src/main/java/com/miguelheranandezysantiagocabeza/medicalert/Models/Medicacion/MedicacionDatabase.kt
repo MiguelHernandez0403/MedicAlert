@@ -17,7 +17,7 @@ import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.M
         HistorialEntity::class,
         CitasEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class MedicacionDatabase : RoomDatabase() {
