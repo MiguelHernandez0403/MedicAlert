@@ -30,12 +30,23 @@ class CitasViewModel(
         }
     }
 
-    fun insertar(titulo: String, fecha: String, hora: String, lugar: String, notas: String?) {
+    // -------------------------
+    // INSERTAR CITA (CORREGIDO)
+    // -------------------------
+    fun insertar(
+        titulo: String,
+        fecha: String,
+        hora: String,
+        fechaHoraMillis: Long,
+        lugar: String,
+        notas: String?
+    ) {
         viewModelScope.launch {
             val nueva = CitasEntity(
                 titulo = titulo,
                 fecha = fecha,
                 hora = hora,
+                fechaHoraMillis = fechaHoraMillis,
                 lugar = lugar,
                 notas = notas
             )
@@ -43,13 +54,25 @@ class CitasViewModel(
         }
     }
 
-    fun actualizar(id: Int, titulo: String, fecha: String, hora: String, lugar: String, notas: String?) {
+    // -------------------------
+    // ACTUALIZAR CITA (CORREGIDO)
+    // -------------------------
+    fun actualizar(
+        id: Int,
+        titulo: String,
+        fecha: String,
+        hora: String,
+        fechaHoraMillis: Long,
+        lugar: String,
+        notas: String?
+    ) {
         viewModelScope.launch {
             val data = CitasEntity(
                 id = id,
                 titulo = titulo,
                 fecha = fecha,
                 hora = hora,
+                fechaHoraMillis = fechaHoraMillis,
                 lugar = lugar,
                 notas = notas
             )

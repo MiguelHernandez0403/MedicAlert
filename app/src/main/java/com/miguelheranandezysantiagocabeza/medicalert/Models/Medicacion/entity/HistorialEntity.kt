@@ -5,12 +5,14 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "historial")
 data class HistorialEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val idMedicacion: Int,
     val nombre: String,
     val dosis: String,
     val horaProgramada: String,
     val horaTomada: String,
-    val fecha: String, // dd/MM/yyyy
+    val fecha: String,
+    val timestamp: Long,     // 🔥 para ordenar historial
     val tipo: String = "manual"
 )

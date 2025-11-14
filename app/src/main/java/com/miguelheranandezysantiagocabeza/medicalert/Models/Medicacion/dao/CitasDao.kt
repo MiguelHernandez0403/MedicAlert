@@ -11,14 +11,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CitasDao {
 
-    @Query("SELECT * FROM citas ORDER BY fecha DESC, id DESC")
+    @Query("SELECT * FROM citas ORDER BY fechaHoraMillis DESC")
     fun getAll(): Flow<List<CitasEntity>>
 
-    @Query("SELECT * FROM citas WHERE id = :id")
+    @Query("SELECT * FROM citas WHERE id = :id LIMIT 1")
     fun getCitaById(id: Int): Flow<CitasEntity?>
 
+    // 🔥 Debe devolver Long para poder usar toInt() en el repositorio
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCita(cita: CitasEntity)
+    suspend fun insertCita(cita: CitasEntity): Long
 
     @Update
     suspend fun updateCita(cita: CitasEntity)

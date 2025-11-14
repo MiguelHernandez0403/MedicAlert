@@ -4,59 +4,92 @@ import android.content.Context
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.MedicacionDatabase
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.HistorialEntity
 import com.miguelheranandezysantiagocabeza.medicalert.Models.Medicacion.entity.MedicacionEntity
+import com.miguelheranandezysantiagocabeza.medicalert.utils.millisAFecha
+import com.miguelheranandezysantiagocabeza.medicalert.utils.millisAHora
+import com.miguelheranandezysantiagocabeza.medicalert.programarAlarma
 import kotlinx.coroutines.flow.Flow
 
-class MedicacionRepository private constructor(context: Context) {
+class MedicacionRepository private constructor(private val context: Context) {
 
-    private val db = MedicacionDatabase.Companion.getInstance(context)
+    private val db = MedicacionDatabase.getInstance(context)
     private val medicacionDao = db.medicacionDao()
     private val historialDao = db.historialDao()
 
     // ============================================================
-    //                        MEDICACIÓN
+    // MEDICACIÓN
     // ============================================================
 
-    fun getAll(): Flow<List<MedicacionEntity>> =
-        medicacionDao.getAll()
+    fun getAll(): Flow<List<MedicacionEntity>> = medicacionDao.getAll()
 
-    suspend fun getById(id: Int) =
-        medicacionDao.getById(id)
+    suspend fun getById(id: Int) = medicacionDao.getById(id)
 
-    fun getByIdFlow(id: Int): Flow<MedicacionEntity?> =
-        medicacionDao.getByIdFlow(id)
+    fun getByIdFlow(id: Int): Flow<MedicacionEntity?> = medicacionDao.getByIdFlow(id)
 
-    suspend fun insert(item: MedicacionEntity) =
-        medicacionDao.insert(item)
+    // ------------------------------------------------------------
+    // 🔥 INSERTAR MEDICACIÓN + OBTENER ID REAL + PROGRAMAR ALARMA
+    // ------------------------------------------------------------
+    suspend fun insert(item: MedicacionEntity) {
+        val idGenerado: Long = medicacionDao.insert(item)
+        val idInt = idGenerado.toInt()
 
-    suspend fun update(item: MedicacionEntity) =
+        programarAlarma(
+            context = context,
+            id = idInt,
+            horaEnMilis = item.horaMillis,
+            titulo = "Toma tu medicación",
+            mensaje = "${item.nombre} (${item.dosis})",
+            tipo = "medicacion"
+        )
+    }
+
+    // ------------------------------------------------------------
+    // 🔥 ACTUALIZAR MEDICACIÓN Y REPROGRAMAR ALARMA
+    // ------------------------------------------------------------
+    suspend fun update(item: MedicacionEntity) {
         medicacionDao.update(item)
 
-    suspend fun delete(id: Int) =
-        medicacionDao.deleteById(id)
+        programarAlarma(
+            context = context,
+            id = item.id,
+            horaEnMilis = item.horaMillis,
+            titulo = "Toma tu medicación",
+            mensaje = "${item.nombre} (${item.dosis})",
+            tipo = "medicacion"
+        )
+    }
+
+    suspend fun delete(id: Int) = medicacionDao.deleteById(id)
 
     // ============================================================
-    //                        HISTORIAL
+    // HISTORIAL
     // ============================================================
 
-    fun getHistorial(): Flow<List<HistorialEntity>> =
-        historialDao.getAll()
+    fun getHistorial(): Flow<List<HistorialEntity>> = historialDao.getAll()
 
     fun getHistorialPorMedicacion(id: Int): Flow<List<HistorialEntity>> =
         historialDao.getByMedicacion(id)
 
-    suspend fun insertHistorial(item: HistorialEntity) =
-        historialDao.insert(item)
-
-    suspend fun deleteHistorial(id: Int) =
-        historialDao.delete(id)
-
-    suspend fun clearHistorial() =
-        historialDao.clear()
-
-    // ============================================================
+    // ------------------------------------------------------------
+    // 🔥 REGISTRAR TOMA AUTOMÁTICA DESDE EL RECEIVER
+    // ------------------------------------------------------------
+    suspend fun registrarToma(item: MedicacionEntity) {
+        historialDao.insert(
+            HistorialEntity(
+                idMedicacion = item.id,
+                nombre = item.nombre,
+                dosis = item.dosis,
+                horaProgramada = item.hora,
+                horaTomada = millisAHora(System.currentTimeMillis()),
+                fecha = millisAFecha(System.currentTimeMillis()),
+                timestamp = System.currentTimeMillis(),
+                tipo = "automatica"
+            )
+        )
+    }
 
     companion object {
-        @Volatile private var INSTANCE: MedicacionRepository? = null
+        @Volatile
+        private var INSTANCE: MedicacionRepository? = null
 
         fun getInstance(context: Context): MedicacionRepository {
             return INSTANCE ?: synchronized(this) {

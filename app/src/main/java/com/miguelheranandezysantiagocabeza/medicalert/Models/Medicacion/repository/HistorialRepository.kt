@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class HistorialRepository private constructor(context: Context) {
 
-    private val historialDao = MedicacionDatabase.Companion.getInstance(context).historialDao()
+    private val historialDao = MedicacionDatabase.getInstance(context).historialDao()
 
     fun getHistorial(): Flow<List<HistorialEntity>> = historialDao.getAll()
 

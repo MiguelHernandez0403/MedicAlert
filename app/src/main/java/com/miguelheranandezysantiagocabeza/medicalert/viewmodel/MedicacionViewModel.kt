@@ -14,9 +14,9 @@ class MedicacionViewModel(
     private val repo: MedicacionRepository
 ) : ViewModel() {
 
-    // --------------------------
-    // MEDICAMENTOS EN TIEMPO REAL
-    // --------------------------
+    // ===========================
+    // MEDICACIONES EN TIEMPO REAL
+    // ===========================
 
     private val _medicaciones = MutableStateFlow<List<MedicacionEntity>>(emptyList())
     val medicaciones: StateFlow<List<MedicacionEntity>> = _medicaciones.asStateFlow()
@@ -34,20 +34,39 @@ class MedicacionViewModel(
         return if (id == null || id == -1) {
             MutableStateFlow(null)
         } else {
-            flow { emit(repo.getById(id)) }
+            repo.getByIdFlow(id)
+        }
+    }
+
+    // ------------------------------------------
+    // Conversión "hh:mm AM/PM" -> millis de HOY
+    // ------------------------------------------
+    private fun convertirAHoraMillis(hora: String): Long {
+        return try {
+            val formatoCompleto = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+            val fechaActual = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+            val fechaFinal = "$fechaActual $hora"
+            formatoCompleto.parse(fechaFinal)?.time ?: System.currentTimeMillis()
+        } catch (e: Exception) {
+            System.currentTimeMillis()
         }
     }
 
     // Insertar medicamento
     fun insertar(nombre: String, dosis: String, hora: String, frecuencia: Int, imagen: String?) {
         viewModelScope.launch {
+
+            val millis = convertirAHoraMillis(hora)
+
             val nueva = MedicacionEntity(
                 nombre = nombre,
                 dosis = dosis,
                 hora = hora,
+                horaMillis = millis,
                 frecuenciaHoras = frecuencia,
                 imagen = imagen
             )
+
             repo.insert(nueva)
         }
     }
@@ -55,14 +74,19 @@ class MedicacionViewModel(
     // Actualizar medicamento
     fun actualizar(id: Int, nombre: String, dosis: String, hora: String, frecuencia: Int, imagen: String?) {
         viewModelScope.launch {
+
+            val millis = convertirAHoraMillis(hora)
+
             val data = MedicacionEntity(
                 id = id,
                 nombre = nombre,
                 dosis = dosis,
                 hora = hora,
+                horaMillis = millis,
                 frecuenciaHoras = frecuencia,
                 imagen = imagen
             )
+
             repo.update(data)
         }
     }
@@ -74,11 +98,10 @@ class MedicacionViewModel(
         }
     }
 
-    // ============================================================
-    //                    HISTORIAL
-    // ============================================================
+    // ===========================
+    // HISTORIAL (SOLO LECTURA)
+    // ===========================
 
-    // Obtener historial completo
     val historial: StateFlow<List<HistorialEntity>> =
         repo.getHistorial().stateIn(
             viewModelScope,
@@ -86,51 +109,7 @@ class MedicacionViewModel(
             emptyList()
         )
 
-    // Obtener historial de un medicamento
     fun historialPorMedicacion(idMedicacion: Int): Flow<List<HistorialEntity>> {
         return repo.getHistorialPorMedicacion(idMedicacion)
-    }
-
-    // Registrar toma manual
-    fun registrarToma(
-        idMedicacion: Int,
-        nombre: String,
-        dosis: String,
-        horaProgramada: String
-    ) {
-        viewModelScope.launch {
-
-            val formatoFecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val formatoHora = SimpleDateFormat("hh:mm a", Locale.getDefault())
-
-            val fechaActual = formatoFecha.format(Date())
-            val horaActual = formatoHora.format(Date())
-
-            val nuevo = HistorialEntity(
-                idMedicacion = idMedicacion,
-                nombre = nombre,
-                dosis = dosis,
-                horaProgramada = horaProgramada,
-                horaTomada = horaActual,
-                fecha = fechaActual,
-                tipo = "manual"
-            )
-
-            repo.insertHistorial(nuevo)
-        }
-    }
-
-    // Eliminar entrada del historial
-    fun eliminarHistorial(id: Int) {
-        viewModelScope.launch {
-            repo.deleteHistorial(id)
-        }
-    }
-
-    // Limpiar todo el historial (Ãºtil para pruebas)
-    fun limpiarHistorial() {
-        viewModelScope.launch {
-            repo.clearHistorial()
-        }
     }
 }

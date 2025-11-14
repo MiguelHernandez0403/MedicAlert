@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.miguelheranandezysantiagocabeza.medicalert.viewmodel.CitasViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.util.*
 
 val CitaHeaderColor = Color(0xFF87CEEB)
@@ -34,22 +33,20 @@ val CitaDividerColor = Color(0xFFE0E0E0)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditCitaScreen(
-    idCita: Int?,                 // null o -1 -> nueva, >=0 -> editar
+    idCita: Int?,
     onBack: () -> Unit,
-    onSave: () -> Unit,           // se llama después de insertar/actualizar
+    onSave: () -> Unit,
     viewModel: CitasViewModel
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
-    // Estados de los campos
     var titulo by remember { mutableStateOf("") }
     var fecha by remember { mutableStateOf("") }
     var hora by remember { mutableStateOf("") }
     var lugar by remember { mutableStateOf("") }
-    var notas by remember { mutableStateOf("") }   // YA NO ES String?
+    var notas by remember { mutableStateOf("") }
 
-    // Cargar datos si es edición
+    // === Cargar datos si es edición ===
     LaunchedEffect(idCita) {
         if (idCita != null && idCita != -1) {
             viewModel.obtenerPorId(idCita).collectLatest { m ->
@@ -66,11 +63,12 @@ fun AddEditCitaScreen(
 
     val calendar = Calendar.getInstance()
 
+    // ------------------------- PICKERS -------------------------
     val datePicker = remember {
         DatePickerDialog(
             context,
-            { _, year, month, dayOfMonth ->
-                fecha = String.format("%02d/%02d/%d", dayOfMonth, month + 1, year)
+            { _, year, month, day ->
+                fecha = String.format("%02d/%02d/%d", day, month + 1, year)
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -82,12 +80,14 @@ fun AddEditCitaScreen(
         TimePickerDialog(
             context,
             { _, hourOfDay, minute ->
+
                 hora = String.format(
                     "%02d:%02d %s",
                     if (hourOfDay % 12 == 0) 12 else hourOfDay % 12,
                     minute,
                     if (hourOfDay < 12) "AM" else "PM"
                 )
+
             },
             calendar.get(Calendar.HOUR_OF_DAY),
             calendar.get(Calendar.MINUTE),
@@ -95,6 +95,7 @@ fun AddEditCitaScreen(
         )
     }
 
+    // ------------------------- UI -------------------------
     Scaffold(
         topBar = {
             Box(
@@ -115,6 +116,7 @@ fun AddEditCitaScreen(
                         tint = Color.White
                     )
                 }
+
                 Text(
                     text = "Editar/Añadir\nCita",
                     modifier = Modifier.align(Alignment.Center),
@@ -128,6 +130,7 @@ fun AddEditCitaScreen(
         },
         containerColor = Color.White
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -135,137 +138,121 @@ fun AddEditCitaScreen(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            CitaInput(
-                label = "Título",
-                value = titulo,
-                onValueChange = { titulo = it },
-                placeholder = "Ej: Odontólogo, Control general"
-            )
+
+            CitaInput("Título", titulo, { titulo = it }, "Ej: Odontólogo, Control general")
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Fecha",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = CitaPrimaryTextColor
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Fecha", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Spacer(Modifier.height(4.dp))
 
                     Text(
                         text = if (fecha.isEmpty()) "dd/mm/yyyy" else fecha,
                         fontSize = 13.sp,
-                        color = if (fecha.isEmpty())
-                            CitaSecondaryTextColor.copy(alpha = 0.5f)
-                        else
-                            CitaSecondaryTextColor,
+                        color = CitaSecondaryTextColor,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { datePicker.show() }
                             .padding(vertical = 4.dp)
                     )
-
-                    Divider(
-                        color = CitaDividerColor,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    Divider(color = CitaDividerColor)
                 }
 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(Modifier.width(16.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Hora",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp,
-                        color = CitaPrimaryTextColor
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Hora", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Spacer(Modifier.height(4.dp))
 
                     Text(
                         text = if (hora.isEmpty()) "00:00 AM" else hora,
                         fontSize = 13.sp,
-                        color = if (hora.isEmpty())
-                            CitaSecondaryTextColor.copy(alpha = 0.5f)
-                        else
-                            CitaSecondaryTextColor,
+                        color = CitaSecondaryTextColor,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { timePicker.show() }
                             .padding(vertical = 4.dp)
                     )
-
-                    Divider(
-                        color = CitaDividerColor,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    Divider(color = CitaDividerColor)
                 }
             }
 
-            CitaInput(
-                label = "Lugar",
-                value = lugar,
-                onValueChange = { lugar = it },
-                placeholder = "Ej: Clínica Santa María"
-            )
+            CitaInput("Lugar", lugar, { lugar = it }, "Ej: Clínica Santa María")
+            CitaInput("Notas", notas, { notas = it }, "Notas adicionales (opcional)")
 
-            CitaInput(
-                label = "Notas",
-                value = notas,
-                onValueChange = { notas = it },
-                placeholder = "Notas adicionales (opcional)"
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
 
             Button(
                 onClick = {
+
+                    // ======================================================
+                    //     GENERAR fechaHoraMillis de forma segura y sin bugs
+                    // ======================================================
+                    val cal = Calendar.getInstance()
+
+                    if (fecha.contains("/") && hora.contains(":")) {
+                        try {
+                            val (d, m, y) = fecha.split("/").map { it.toInt() }
+                            cal.set(Calendar.DAY_OF_MONTH, d)
+                            cal.set(Calendar.MONTH, m - 1)
+                            cal.set(Calendar.YEAR, y)
+
+                            // Hora
+                            val (h12, minAmPm) = hora.split(":")
+                            val (min, ampm) = minAmPm.split(" ")
+
+                            var h24 = h12.toInt()
+                            val mn = min.toInt()
+
+                            h24 = when (ampm.uppercase()) {
+                                "AM" -> if (h24 == 12) 0 else h24
+                                "PM" -> if (h24 != 12) h24 + 12 else 12
+                                else -> h24
+                            }
+
+                            cal.set(Calendar.HOUR_OF_DAY, h24)
+                            cal.set(Calendar.MINUTE, mn)
+                            cal.set(Calendar.SECOND, 0)
+
+                        } catch (_: Exception) { }
+                    }
+
+                    val fechaHoraMillis = cal.timeInMillis
+
                     if (idCita == null || idCita == -1) {
-                        // Crear nueva cita
                         viewModel.insertar(
                             titulo = titulo,
                             fecha = fecha,
                             hora = hora,
+                            fechaHoraMillis = fechaHoraMillis,
                             lugar = lugar,
                             notas = notas
                         )
                     } else {
-                        // Actualizar cita existente
                         viewModel.actualizar(
                             id = idCita,
                             titulo = titulo,
                             fecha = fecha,
                             hora = hora,
+                            fechaHoraMillis = fechaHoraMillis,
                             lugar = lugar,
                             notas = notas
                         )
                     }
 
-                    onSave() // volver atrás
+                    onSave()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CitaButtonColor
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = CitaButtonColor)
             ) {
-                Text(
-                    "Guardar",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    color = Color.White
-                )
+                Text("Guardar", fontWeight = FontWeight.SemiBold, color = Color.White)
             }
         }
     }
@@ -276,45 +263,32 @@ fun CitaInput(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier
+    placeholder: String
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
-            color = CitaPrimaryTextColor
-        )
-        Spacer(modifier = Modifier.height(4.dp))
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(label, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+        Spacer(Modifier.height(4.dp))
 
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = TextStyle(
-                fontSize = 13.sp,
-                color = CitaSecondaryTextColor
-            ),
+            textStyle = TextStyle(fontSize = 13.sp, color = CitaSecondaryTextColor),
             singleLine = true,
-            decorationBox = { innerTextField ->
-                Row(modifier = Modifier.fillMaxWidth()) {
+            decorationBox = { inner ->
+                Row {
                     if (value.isEmpty()) {
                         Text(
-                            text = placeholder,
+                            placeholder,
                             fontSize = 13.sp,
                             color = CitaSecondaryTextColor.copy(alpha = 0.5f)
                         )
                     }
-                    innerTextField()
+                    inner()
                 }
             },
             modifier = Modifier.padding(vertical = 4.dp)
         )
 
-        Divider(
-            color = CitaDividerColor,
-            thickness = 1.dp,
-            modifier = Modifier.padding(top = 4.dp)
-        )
+        Divider(color = CitaDividerColor)
     }
 }

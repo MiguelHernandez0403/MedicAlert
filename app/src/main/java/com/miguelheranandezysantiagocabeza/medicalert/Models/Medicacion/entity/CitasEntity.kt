@@ -8,8 +8,9 @@ data class CitasEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val titulo: String,
-    val fecha: String,
-    val hora: String,
+    val fecha: String,          // visible
+    val hora: String,           // visible
+    val fechaHoraMillis: Long,  // 🔥 obligatorio para alarmas
     val lugar: String,
     val notas: String?
 )
